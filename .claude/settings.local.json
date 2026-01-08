@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod:*)",
+      "Bash(brew install:*)",
+      "Bash(xcodegen generate:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(sudo xcode-select:*)",
+      "Bash(cat:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:levelup.gitconnected.com)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:www.donnywals.com)",
+      "Bash(swift:*)",
+      "Bash(/Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
