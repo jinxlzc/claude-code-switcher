@@ -2,53 +2,45 @@ import SwiftUI
 
 struct MenuBarContentView: View {
     @EnvironmentObject var configManager: ConfigManager
-    @State private var showingAddSheet = false
-    @State private var editingConfig: ProxyConfig?
+    @Environment(\.openWindow) private var openWindow
 
     var body: some View {
-        GlassEffectContainer {
-            VStack(spacing: 0) {
-                // 头部状态栏
-                MenuBarHeaderView()
+        VStack(spacing: 0) {
+            // Header
+            HeaderView()
 
-                Divider()
-                    .padding(.horizontal, 12)
-
-                // 配置列表
-                if configManager.configs.isEmpty {
-                    MenuBarEmptyView(showingAddSheet: $showingAddSheet)
-                } else {
-                    MenuBarConfigListView(editingConfig: $editingConfig)
-                }
-
-                Divider()
-                    .padding(.horizontal, 12)
-
-                // 底部操作栏
-                MenuBarFooterView(showingAddSheet: $showingAddSheet)
+            // Content
+            if configManager.configs.isEmpty {
+                EmptyStateView(openWindow: openWindow)
+            } else {
+                ConfigListView(openWindow: openWindow)
             }
-            .frame(width: 320, height: 420)
+
+            // Footer
+            FooterView(openWindow: openWindow)
         }
-        .sheet(isPresented: $showingAddSheet) {
-            ConfigEditView(config: nil)
-        }
-        .sheet(item: $editingConfig) { config in
-            ConfigEditView(config: config)
-        }
+        .frame(width: 300, height: 400)
+        .background(.ultraThinMaterial)
     }
 }
 
-// MARK: - 头部视图
-struct MenuBarHeaderView: View {
+// MARK: - Header View
+
+struct HeaderView: View {
     @EnvironmentObject var configManager: ConfigManager
 
     var body: some View {
         HStack(spacing: 12) {
-            // 状态指示器
-            Circle()
-                .fill(statusColor)
-                .frame(width: 10, height: 10)
-                .glassEffect(.clear, in: .circle)
+            // Status indicator
+            ZStack {
+                Circle()
+                    .fill(statusColor.opacity(0.2))
+                    .frame(width: 32, height: 32)
+
+                Circle()
+                    .fill(statusColor)
+                    .frame(width: 10, height: 10)
+            }
 
             VStack(alignment: .leading, spacing: 2) {
                 Text("Claude Code Switcher")
@@ -59,7 +51,7 @@ struct MenuBarHeaderView: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 } else {
-                    Text("No active config")
+                    Text("No active configuration")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -71,12 +63,17 @@ struct MenuBarHeaderView: View {
                 configManager.detectActiveConfig()
             } label: {
                 Image(systemName: "arrow.clockwise")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 28, height: 28)
+                    .background(.quaternary.opacity(0.5))
+                    .clipShape(Circle())
             }
-            .buttonStyle(.borderless)
-            .glassEffect(.clear.interactive(), in: .circle)
+            .buttonStyle(.plain)
+            .help("Refresh status")
         }
         .padding(16)
-        .glassEffect(.regular, in: .rect(cornerRadius: 12))
+        .background(.quaternary.opacity(0.3))
     }
 
     var statusColor: Color {
@@ -89,31 +86,44 @@ struct MenuBarHeaderView: View {
     }
 }
 
-// MARK: - 空状态视图
-struct MenuBarEmptyView: View {
-    @Binding var showingAddSheet: Bool
+// MARK: - Empty State View
+
+struct EmptyStateView: View {
+    let openWindow: OpenWindowAction
 
     var body: some View {
         VStack(spacing: 16) {
             Spacer()
 
-            Image(systemName: "slider.horizontal.3")
-                .font(.system(size: 40))
-                .foregroundStyle(.secondary)
+            ZStack {
+                Circle()
+                    .fill(.quaternary.opacity(0.5))
+                    .frame(width: 64, height: 64)
 
-            Text("No Configurations")
-                .font(.subheadline)
-                .fontWeight(.medium)
+                Image(systemName: "gear.badge.questionmark")
+                    .font(.system(size: 28))
+                    .foregroundStyle(.secondary)
+            }
 
-            Text("Add your first config")
-                .font(.caption)
-                .foregroundStyle(.secondary)
+            VStack(spacing: 6) {
+                Text("No Configurations")
+                    .font(.headline)
 
-            Button("Add Config") {
-                showingAddSheet = true
+                Text("Add a configuration to get started")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            Button {
+                openWindow(id: "config-add")
+                NSApp.activate(ignoringOtherApps: true)
+            } label: {
+                Label("Add Configuration", systemImage: "plus")
+                    .font(.subheadline)
+                    .fontWeight(.medium)
             }
             .buttonStyle(.borderedProminent)
-            .glassEffect(.regular.tint(.blue).interactive(), in: .capsule)
+            .controlSize(.regular)
 
             Spacer()
         }
@@ -122,25 +132,27 @@ struct MenuBarEmptyView: View {
     }
 }
 
-// MARK: - 配置列表视图
-struct MenuBarConfigListView: View {
+// MARK: - Config List View
+
+struct ConfigListView: View {
     @EnvironmentObject var configManager: ConfigManager
-    @Binding var editingConfig: ProxyConfig?
+    let openWindow: OpenWindowAction
     @State private var configToDelete: ProxyConfig?
     @State private var showingDeleteAlert = false
 
     var body: some View {
         ScrollView {
-            LazyVStack(spacing: 8) {
+            LazyVStack(spacing: 6) {
                 ForEach(configManager.configs) { config in
-                    MenuBarConfigRow(
+                    ConfigRowView(
                         config: config,
                         isActive: configManager.activeConfigId == config.id,
                         onActivate: {
                             configManager.switchToConfig(config)
                         },
                         onEdit: {
-                            editingConfig = config
+                            openWindow(id: "config-edit", value: config.id)
+                            NSApp.activate(ignoringOtherApps: true)
                         },
                         onDelete: {
                             configToDelete = config
@@ -159,13 +171,14 @@ struct MenuBarConfigListView: View {
                 }
             }
         } message: {
-            Text("Are you sure you want to delete \"\(configToDelete?.name ?? "")\"?")
+            Text("Are you sure you want to delete \"\(configToDelete?.name ?? "")\"? This action cannot be undone.")
         }
     }
 }
 
-// MARK: - 配置行视图
-struct MenuBarConfigRow: View {
+// MARK: - Config Row View
+
+struct ConfigRowView: View {
     let config: ProxyConfig
     let isActive: Bool
     let onActivate: () -> Void
@@ -175,75 +188,77 @@ struct MenuBarConfigRow: View {
     @State private var isHovering = false
 
     var body: some View {
-        HStack(spacing: 10) {
-            // 激活状态指示
+        HStack(spacing: 12) {
+            // Active indicator
             Circle()
                 .fill(isActive ? Color.green : Color.clear)
                 .frame(width: 8, height: 8)
                 .overlay(
                     Circle()
-                        .stroke(Color.secondary.opacity(0.3), lineWidth: 1)
+                        .stroke(isActive ? Color.green : Color.secondary.opacity(0.3), lineWidth: 1.5)
                 )
 
-            // 配置信息
-            VStack(alignment: .leading, spacing: 2) {
+            // Config info
+            VStack(alignment: .leading, spacing: 3) {
                 Text(config.name)
                     .font(.subheadline)
                     .fontWeight(.medium)
+                    .lineLimit(1)
 
                 HStack(spacing: 6) {
-                    Text(config.model)
+                    Text(config.model.capitalized)
                         .font(.caption2)
-                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(.quaternary)
+                        .clipShape(Capsule())
 
                     if config.alwaysThinkingEnabled {
-                        Image(systemName: "brain")
-                            .font(.caption2)
-                            .foregroundStyle(.secondary)
+                        HStack(spacing: 2) {
+                            Image(systemName: "brain")
+                            Text("Thinking")
+                        }
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                     }
                 }
             }
 
             Spacer()
 
-            // 操作按钮
-            if isHovering || isActive {
-                HStack(spacing: 6) {
+            // Action buttons
+            if isHovering {
+                HStack(spacing: 4) {
                     if !isActive {
-                        Button {
+                        ActionButton(icon: "checkmark", color: .green) {
                             onActivate()
-                        } label: {
-                            Image(systemName: "checkmark.circle")
                         }
-                        .buttonStyle(.borderless)
                         .help("Activate")
                     }
 
-                    Button {
+                    ActionButton(icon: "pencil", color: .secondary) {
                         onEdit()
-                    } label: {
-                        Image(systemName: "pencil")
                     }
-                    .buttonStyle(.borderless)
                     .help("Edit")
 
-                    Button {
+                    ActionButton(icon: "trash", color: .red) {
                         onDelete()
-                    } label: {
-                        Image(systemName: "trash")
                     }
-                    .buttonStyle(.borderless)
-                    .foregroundStyle(.red)
                     .help("Delete")
                 }
             }
         }
-        .padding(10)
-        .glassEffect(
-            isActive ? .regular.tint(.green.opacity(0.2)).interactive() :
-            (isHovering ? .regular.interactive() : .clear),
-            in: .rect(cornerRadius: 10)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(isActive ? Color.green.opacity(0.1) : (isHovering ? Color.primary.opacity(0.05) : Color.clear))
         )
+        .overlay(
+            RoundedRectangle(cornerRadius: 10)
+                .stroke(isActive ? Color.green.opacity(0.3) : Color.clear, lineWidth: 1)
+        )
+        .contentShape(Rectangle())
         .onHover { hovering in
             withAnimation(.easeInOut(duration: 0.15)) {
                 isHovering = hovering
@@ -257,9 +272,30 @@ struct MenuBarConfigRow: View {
     }
 }
 
-// MARK: - 底部视图
-struct MenuBarFooterView: View {
-    @Binding var showingAddSheet: Bool
+// MARK: - Action Button
+
+struct ActionButton: View {
+    let icon: String
+    let color: Color
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .medium))
+                .foregroundStyle(color)
+                .frame(width: 24, height: 24)
+                .background(color.opacity(0.1))
+                .clipShape(Circle())
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - Footer View
+
+struct FooterView: View {
+    let openWindow: OpenWindowAction
 
     var body: some View {
         HStack {
@@ -267,26 +303,42 @@ struct MenuBarFooterView: View {
                 NSApp.terminate(nil)
             } label: {
                 Image(systemName: "power")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .frame(width: 28, height: 28)
+                    .background(.quaternary.opacity(0.5))
+                    .clipShape(Circle())
             }
-            .buttonStyle(.borderless)
+            .buttonStyle(.plain)
             .help("Quit")
 
             Spacer()
 
             Button {
-                showingAddSheet = true
+                openWindow(id: "config-add")
+                NSApp.activate(ignoringOtherApps: true)
             } label: {
-                Label("Add", systemImage: "plus")
+                HStack(spacing: 4) {
+                    Image(systemName: "plus")
+                        .font(.system(size: 11, weight: .semibold))
+                    Text("Add")
+                        .font(.subheadline)
+                        .fontWeight(.medium)
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(Color.accentColor)
+                .foregroundStyle(.white)
+                .clipShape(Capsule())
             }
-            .buttonStyle(.borderless)
-            .glassEffect(.regular.interactive(), in: .capsule)
+            .buttonStyle(.plain)
         }
         .padding(12)
+        .background(.quaternary.opacity(0.3))
     }
 }
 
 #Preview {
     MenuBarContentView()
         .environmentObject(ConfigManager())
-        .frame(width: 320, height: 420)
 }

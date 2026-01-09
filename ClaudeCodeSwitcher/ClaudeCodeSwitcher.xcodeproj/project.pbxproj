@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		1D0B4C4F818DCA5F95DEC7F0 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 2575EFC08F3941DFA1204F23 /* Assets.xcassets */; };
 		26A06A09B2EEDAF9E0DC5244 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = 442A563A288B8938824A954A /* Models.swift */; };
-		2E785F64E6EDC6C5C3614D50 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB7577BD7D03B8B27ED75FB /* ContentView.swift */; };
+		3294E0EBB78C2D3F0863ED2E /* GlassEffectContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F959F2F50A196BA9F6C2903F /* GlassEffectContainer.swift */; };
 		5A0836253C814555484EA7F3 /* ClaudeCodeSwitcherApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A01554B35D18E0DA7CE4A0 /* ClaudeCodeSwitcherApp.swift */; };
 		751E38E66C3310D6714A2FFE /* MenuBarContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D59611C563F520B2A5E4E359 /* MenuBarContentView.swift */; };
 		9E654838F6F9403E95859504 /* ConfigManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28A803FB81F6E1A0E0730FAC /* ConfigManager.swift */; };
@@ -22,12 +22,12 @@
 		2575EFC08F3941DFA1204F23 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		26F4FD95D1B2607571BB0B20 /* ConfigEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigEditView.swift; sourceTree = "<group>"; };
 		28A803FB81F6E1A0E0730FAC /* ConfigManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigManager.swift; sourceTree = "<group>"; };
-		2FB7577BD7D03B8B27ED75FB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		38CEC65CB63FE3BF21BDA838 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		442A563A288B8938824A954A /* Models.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		87A01554B35D18E0DA7CE4A0 /* ClaudeCodeSwitcherApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaudeCodeSwitcherApp.swift; sourceTree = "<group>"; };
 		D298604936E1F794BC8763B9 /* ClaudeCodeSwitcher.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ClaudeCodeSwitcher.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D59611C563F520B2A5E4E359 /* MenuBarContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarContentView.swift; sourceTree = "<group>"; };
+		F959F2F50A196BA9F6C2903F /* GlassEffectContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassEffectContainer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -54,7 +54,7 @@
 				87A01554B35D18E0DA7CE4A0 /* ClaudeCodeSwitcherApp.swift */,
 				26F4FD95D1B2607571BB0B20 /* ConfigEditView.swift */,
 				28A803FB81F6E1A0E0730FAC /* ConfigManager.swift */,
-				2FB7577BD7D03B8B27ED75FB /* ContentView.swift */,
+				F959F2F50A196BA9F6C2903F /* GlassEffectContainer.swift */,
 				14E9E852EBECB4BE7A5FB684 /* Info.plist */,
 				D59611C563F520B2A5E4E359 /* MenuBarContentView.swift */,
 				442A563A288B8938824A954A /* Models.swift */,
@@ -137,7 +137,7 @@
 				5A0836253C814555484EA7F3 /* ClaudeCodeSwitcherApp.swift in Sources */,
 				E444876E4E4A7E633655C630 /* ConfigEditView.swift in Sources */,
 				9E654838F6F9403E95859504 /* ConfigManager.swift in Sources */,
-				2E785F64E6EDC6C5C3614D50 /* ContentView.swift in Sources */,
+				3294E0EBB78C2D3F0863ED2E /* GlassEffectContainer.swift in Sources */,
 				751E38E66C3310D6714A2FFE /* MenuBarContentView.swift in Sources */,
 				26A06A09B2EEDAF9E0DC5244 /* Models.swift in Sources */,
 				F21219941F1100D396EA96A9 /* SettingsView.swift in Sources */,

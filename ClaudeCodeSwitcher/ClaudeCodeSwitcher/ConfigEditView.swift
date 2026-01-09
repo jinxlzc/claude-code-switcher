@@ -29,158 +29,152 @@ struct ConfigEditView: View {
     }
 
     var body: some View {
-        GlassEffectContainer {
-            VStack(spacing: 0) {
-                // Header
-                headerView
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(isEditing ? "Edit Configuration" : "New Configuration")
+                        .font(.title2)
+                        .fontWeight(.semibold)
 
-                Divider()
-                    .padding(.horizontal, 16)
-
-                // Form content
-                formContent
-
-                Divider()
-                    .padding(.horizontal, 16)
-
-                // Footer
-                footerView
-            }
-            .frame(width: 380, height: 480)
-        }
-    }
-
-    // MARK: - Header
-    private var headerView: some View {
-        HStack {
-            Text(isEditing ? "Edit Configuration" : "New Configuration")
-                .font(.headline)
-
-            Spacer()
-
-            Button {
-                dismiss()
-            } label: {
-                Image(systemName: "xmark.circle.fill")
-                    .foregroundStyle(.secondary)
-            }
-            .buttonStyle(.plain)
-            .glassEffect(.clear.interactive(), in: .circle)
-        }
-        .padding(16)
-        .glassEffect(.regular, in: .rect(cornerRadius: 12))
-    }
-
-    // MARK: - Form
-    private var formContent: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                // Name field
-                formField(title: "Name", hint: nil) {
-                    TextField("Configuration Name", text: $name)
-                        .textFieldStyle(.plain)
-                        .padding(10)
-                        .glassEffect(.clear, in: .rect(cornerRadius: 8))
+                    Text(isEditing ? "Modify your proxy settings" : "Add a new proxy configuration")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
+                Spacer()
+            }
+            .padding(.horizontal, 24)
+            .padding(.top, 24)
+            .padding(.bottom, 16)
 
-                // API Key field
-                formField(title: "API Key", hint: "e.g., sk-ant-sid01-...") {
-                    HStack {
-                        Group {
-                            if showAPIKey {
-                                TextField("API Key", text: $apiKey)
-                                    .font(.system(.body, design: .monospaced))
-                            } else {
-                                SecureField("API Key", text: $apiKey)
+            Divider()
+                .padding(.horizontal, 24)
+
+            // Form content
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Name field
+                    FormField(title: "Configuration Name") {
+                        TextField("My Config", text: $name)
+                            .textFieldStyle(.plain)
+                            .padding(12)
+                            .background(.quaternary.opacity(0.5))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+
+                    // API Key field
+                    FormField(title: "API Key") {
+                        HStack(spacing: 8) {
+                            Group {
+                                if showAPIKey {
+                                    TextField("sk-ant-...", text: $apiKey)
+                                        .font(.system(.body, design: .monospaced))
+                                } else {
+                                    SecureField("sk-ant-...", text: $apiKey)
+                                }
+                            }
+                            .textFieldStyle(.plain)
+
+                            Button {
+                                showAPIKey.toggle()
+                            } label: {
+                                Image(systemName: showAPIKey ? "eye.slash.fill" : "eye.fill")
+                                    .foregroundStyle(.secondary)
+                                    .frame(width: 20, height: 20)
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .padding(12)
+                        .background(.quaternary.opacity(0.5))
+                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+
+                    // Base URL field
+                    FormField(title: "Base URL") {
+                        TextField("https://api.example.com", text: $baseURL)
+                            .textFieldStyle(.plain)
+                            .font(.system(.body, design: .monospaced))
+                            .padding(12)
+                            .background(.quaternary.opacity(0.5))
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+
+                    // Model picker
+                    FormField(title: "Default Model") {
+                        HStack(spacing: 8) {
+                            ForEach(availableModels, id: \.self) { m in
+                                ModelButton(
+                                    title: m.capitalized,
+                                    isSelected: model == m
+                                ) {
+                                    model = m
+                                }
                             }
                         }
-                        .textFieldStyle(.plain)
-
-                        Button {
-                            showAPIKey.toggle()
-                        } label: {
-                            Image(systemName: showAPIKey ? "eye.slash" : "eye")
-                        }
-                        .buttonStyle(.borderless)
                     }
-                    .padding(10)
-                    .glassEffect(.clear, in: .rect(cornerRadius: 8))
-                }
 
-                // Base URL field
-                formField(title: "Base URL", hint: "e.g., https://relay.nf.video") {
-                    TextField("https://...", text: $baseURL)
-                        .textFieldStyle(.plain)
-                        .font(.system(.body, design: .monospaced))
-                        .padding(10)
-                        .glassEffect(.clear, in: .rect(cornerRadius: 8))
-                }
-
-                // Model picker
-                formField(title: "Model", hint: nil) {
-                    Picker("", selection: $model) {
-                        ForEach(availableModels, id: \.self) { m in
-                            Text(m.capitalized).tag(m)
+                    // Toggle
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Extended Thinking")
+                                .font(.subheadline)
+                                .fontWeight(.medium)
+                            Text("Enable always thinking mode")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
                         }
+
+                        Spacer()
+
+                        Toggle("", isOn: $alwaysThinkingEnabled)
+                            .toggleStyle(.switch)
+                            .labelsHidden()
                     }
-                    .pickerStyle(.segmented)
-                    .glassEffect(.regular.interactive(), in: .capsule)
+                    .padding(12)
+                    .background(.quaternary.opacity(0.3))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
                 }
+                .padding(24)
+            }
 
-                // Toggle
-                formField(title: "Options", hint: nil) {
-                    Toggle("Always Thinking Enabled", isOn: $alwaysThinkingEnabled)
-                        .toggleStyle(.switch)
-                        .padding(10)
-                        .glassEffect(.clear, in: .rect(cornerRadius: 8))
+            Divider()
+                .padding(.horizontal, 24)
+
+            // Footer
+            HStack(spacing: 12) {
+                Button {
+                    dismiss()
+                } label: {
+                    Text("Cancel")
+                        .frame(maxWidth: .infinity)
                 }
+                .buttonStyle(.plain)
+                .padding(.vertical, 10)
+                .background(.quaternary.opacity(0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .keyboardShortcut(.escape)
+
+                Button {
+                    saveConfig()
+                } label: {
+                    Text(isEditing ? "Save Changes" : "Add Configuration")
+                        .fontWeight(.medium)
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                }
+                .buttonStyle(.plain)
+                .padding(.vertical, 10)
+                .background(isValid ? Color.accentColor : Color.accentColor.opacity(0.5))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .disabled(!isValid)
+                .keyboardShortcut(.return)
             }
-            .padding(16)
+            .padding(24)
         }
+        .frame(width: 400, height: 520)
+        .background(.ultraThinMaterial)
     }
 
-    // MARK: - Footer
-    private var footerView: some View {
-        HStack {
-            Button("Cancel") {
-                dismiss()
-            }
-            .keyboardShortcut(.escape)
-            .glassEffect(.clear.interactive(), in: .capsule)
-
-            Spacer()
-
-            Button(isEditing ? "Save" : "Add") {
-                saveConfig()
-            }
-            .keyboardShortcut(.return)
-            .buttonStyle(.borderedProminent)
-            .disabled(!isValid)
-            .glassEffect(.regular.tint(.blue).interactive(), in: .capsule)
-        }
-        .padding(16)
-    }
-
-    // MARK: - Helper Views
-    @ViewBuilder
-    private func formField<Content: View>(title: String, hint: String?, @ViewBuilder content: () -> Content) -> some View {
-        VStack(alignment: .leading, spacing: 6) {
-            Text(title)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-
-            content()
-
-            if let hint = hint {
-                Text(hint)
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-
-    // MARK: - Logic
     var isValid: Bool {
         !name.trimmingCharacters(in: .whitespaces).isEmpty &&
         !apiKey.trimmingCharacters(in: .whitespaces).isEmpty &&
@@ -211,6 +205,44 @@ struct ConfigEditView: View {
         }
 
         dismiss()
+    }
+}
+
+// MARK: - Helper Views
+
+struct FormField<Content: View>: View {
+    let title: String
+    @ViewBuilder let content: () -> Content
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.medium)
+                .foregroundStyle(.secondary)
+
+            content()
+        }
+    }
+}
+
+struct ModelButton: View {
+    let title: String
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(isSelected ? .semibold : .regular)
+                .foregroundStyle(isSelected ? .white : .primary)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
+                .background(isSelected ? Color.accentColor : Color.gray.opacity(0.2))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+        }
+        .buttonStyle(.plain)
     }
 }
 
